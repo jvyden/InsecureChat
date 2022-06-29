@@ -22,4 +22,23 @@ public struct Packet {
         this.Data = data;
         this.Length = length;
     }
+
+    public static Packet FromBuffer(byte[] buffer) {
+        using MemoryStream memoryStream = new(buffer);
+        using BinaryReader reader = new(memoryStream);
+        
+        while(reader.BaseStream.Position != buffer.Length) {
+            PacketType type = (PacketType)reader.ReadByte();
+            ushort length = reader.ReadUInt16();
+            byte[] data = new byte[length];
+
+            for(int i = 0; i < length; i++) {
+                data[i] = reader.ReadByte();
+            }
+
+            return new Packet(type, data, length);
+        }
+        
+        return new Packet(PacketType.None, Array.Empty<byte>(), 0);
+    }
 }

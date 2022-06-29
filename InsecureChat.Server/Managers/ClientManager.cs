@@ -9,9 +9,9 @@ public static class ClientManager {
 
     public static readonly ConcurrentQueue<ChatClient> ClientQueue = new();
 
-    public static ChatClient CreateClient(WebSocket webSocket) {
-        ChatClient client = new(clients.Count, webSocket);
-        
+    public static ChatClient CreateClient(WebSocket webSocket, TaskCompletionSource<object> completionSource) {
+        ChatClient client = new(clients.Count, webSocket, completionSource);
+
         clients.Add(client);
         ClientQueue.Enqueue(client);
 

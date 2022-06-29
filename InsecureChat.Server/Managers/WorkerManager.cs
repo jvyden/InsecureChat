@@ -1,4 +1,5 @@
 using System.Diagnostics.CodeAnalysis;
+using System.Net.WebSockets;
 
 namespace InsecureChat.Managers; 
 
@@ -17,8 +18,13 @@ public static class WorkerManager {
         if(!ClientManager.ClientQueue.TryDequeue(out ChatClient? chatClient)) return;
 
         chatClient.Statistics.TimesProcessed++;
-        await chatClient.Process();
-        
+        try {
+            await chatClient.Process();
+        }
+        catch(WebSocketException) {
+            chatClient.Disconnect();
+        }
+
         ClientManager.ClientQueue.Enqueue(chatClient);
     }
 }

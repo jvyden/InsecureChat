@@ -6,9 +6,10 @@ using InsecureChat.Packets;
 namespace InsecureChat; 
 
 public class ChatClient {
-    public ChatClient(int clientId, WebSocket webSocket) {
+    public ChatClient(int clientId, WebSocket webSocket, TaskCompletionSource<object> completionSource) {
         this.ClientId = clientId;
         this.WebSocket = webSocket;
+        this.CompletionSource = completionSource;
     }
     
     public readonly int ClientId;
@@ -18,6 +19,8 @@ public class ChatClient {
     private bool fullyConnected = false;
 
     public ClientStatistics Statistics = new();
+
+    public TaskCompletionSource<object> CompletionSource { get; init; }
 
     public void SendPacket(Packet packet) {
         if(this.WebSocket == null) return;
@@ -38,7 +41,6 @@ public class ChatClient {
 
     public async Task Process() {
         if(this.WebSocket == null) return;
-        Console.WriteLine("going");
 
         CancellationTokenSource cts = new();
         cts.CancelAfter(TimeSpan.FromSeconds(1));
@@ -47,21 +49,16 @@ public class ChatClient {
         WebSocketReceiveResult res = await this.WebSocket.ReceiveAsync(buffer, cts.Token);
         Debug.Assert(res.MessageType == WebSocketMessageType.Binary);
 
-        using MemoryStream memoryStream = new(buffer);
-        using BinaryReader reader = new(memoryStream);
+        Packet packet = Packet.FromBuffer(buffer);
+        processPacket(packet);
+    }
 
-        while(reader.BaseStream.Position != res.Count) {
-            PacketType type = (PacketType)reader.ReadByte();
-            ushort length = reader.ReadUInt16();
-            byte[] data = new byte[length];
-
-            for(int i = 0; i < length; i++) {
-                data[i] = reader.ReadByte();
-            }
-            
-            Packet packet = new(type, data, length);
-            processPacket(packet);
-        }
+    public void Disconnect() {
+        this.CompletionSource.SetResult(null!);
+        
+        if(this.WebSocket?.State != WebSocketState.Open) return;
+        
+        this.WebSocket.CloseAsync(WebSocketCloseStatus.Empty, null, CancellationToken.None).Wait();
     }
 
     private void processPacket(Packet packet) {
@@ -75,22 +72,15 @@ public class ChatClient {
                 // wat
                 break;
             case PacketType.Client_Hello:
-                this.SendPacket(new Packet(PacketType.Server_Hello)); // i like money
+//                this.SendPacket(new Packet(PacketType.Server_Hello)); // i like money
                 this.fullyConnected = true;
-                break;
-            case PacketType.Server_Hello:
                 break;
             case PacketType.Client_Register:
                 break;
-            case PacketType.Server_SendMessage:
-                break;
             case PacketType.Client_SendMessage:
                 break;
-            case PacketType.Server_ClientJoined:
-                break;
-            case PacketType.Server_ClientLeft:
-                break;
             case PacketType.Client_Quit:
+                this.Disconnect();
                 break;
             default:
                 throw new ArgumentOutOfRangeException();
