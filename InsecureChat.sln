@@ -1,0 +1,28 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InsecureChat.Server", "InsecureChat.Server\InsecureChat.Server.csproj", "{84913D55-3D6E-4683-893D-070BC4B29EE2}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InsecureChat.CLIClient", "InsecureChat.CLIClient\InsecureChat.CLIClient.csproj", "{5A49C166-F3E6-4544-B311-BBAA93C00A95}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InsecureChat", "InsecureChat\InsecureChat.csproj", "{9BC04B91-7432-45D1-9F82-F9CD1CBD06FC}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{84913D55-3D6E-4683-893D-070BC4B29EE2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{84913D55-3D6E-4683-893D-070BC4B29EE2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{84913D55-3D6E-4683-893D-070BC4B29EE2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{84913D55-3D6E-4683-893D-070BC4B29EE2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5A49C166-F3E6-4544-B311-BBAA93C00A95}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5A49C166-F3E6-4544-B311-BBAA93C00A95}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5A49C166-F3E6-4544-B311-BBAA93C00A95}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5A49C166-F3E6-4544-B311-BBAA93C00A95}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9BC04B91-7432-45D1-9F82-F9CD1CBD06FC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9BC04B91-7432-45D1-9F82-F9CD1CBD06FC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9BC04B91-7432-45D1-9F82-F9CD1CBD06FC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9BC04B91-7432-45D1-9F82-F9CD1CBD06FC}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal

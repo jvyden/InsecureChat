@@ -1,0 +1,37 @@
+@page "/"
+@using InsecureChat
+@using InsecureChat.Managers
+@model InsecureChat.Pages.Index
+
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <title>InsecureChat</title>
+</head>
+<body>
+<div>
+    @foreach(ChatClient client in ClientManager.Clients) {
+        <b>@client.Username (@client.ClientId)</b>
+        <br>
+    }
+</div>
+</body>
+
+<script>
+    const ws = new WebSocket("ws://localhost:5056/ws");
+    ws.onopen = () => {
+        const byteArray = new Uint8Array(3);
+        byteArray[0] = 0x01;
+        byteArray[1] = 0x00;
+        byteArray[2] = 0x00;
+        
+        ws.send(byteArray);
+    }
+</script>
+
+</html>
