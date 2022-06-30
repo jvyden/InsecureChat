@@ -57,6 +57,7 @@
         element.innerHTML = `<strong style="color: red">You Have Been Disconnected Lmao</strong>`;
 
         eventList.appendChild(element);
+        window.scrollTo(0,document.body.scrollHeight);
     }
 
     textBox.addEventListener("keydown", event => {
@@ -162,6 +163,7 @@
                 element.innerHTML = `<strong>${joinedName} joined the chat.</strong>`;
                 
                 eventList.appendChild(element);
+                window.scrollTo(0,document.body.scrollHeight);
                 break;
             }
             case "@nameof(PacketType.Server_ClientLeft)": {
@@ -172,6 +174,7 @@
                                 
                 eventList.appendChild(element);
                 usernames[joinedId] = undefined;
+                window.scrollTo(0,document.body.scrollHeight);
                 break;
             }
             case "@nameof(PacketType.Server_SendMessage)": {
@@ -186,6 +189,7 @@
                 for(let script of eventList.lastElementChild.getElementsByTagName("script")) {
                     eval(script.text);
                 }
+                window.scrollTo(0,document.body.scrollHeight);
                 break;
             }
         }

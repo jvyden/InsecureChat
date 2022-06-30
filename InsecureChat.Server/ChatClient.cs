@@ -49,7 +49,7 @@ public class ChatClient {
         if(this.WebSocket == null) return;
 
         try {
-            byte[] buffer = new byte[1024];
+            byte[] buffer = new byte[65536];
             WebSocketReceiveResult res = await this.WebSocket.ReceiveAsync(buffer, CancellationToken.None);
             if(res.MessageType != WebSocketMessageType.Binary) {
                 this.Disconnect("Sent non-binary data");
