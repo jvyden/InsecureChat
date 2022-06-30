@@ -1,6 +1,4 @@
 @page "/"
-@using InsecureChat
-@using InsecureChat.Managers
 @using InsecureChat.Packets
 @model InsecureChat.Pages.Index
 
@@ -136,7 +134,7 @@
         
         switch (type) {
             case "@nameof(PacketType.Server_Hello)": {
-                console.log("server said hello, we handshaked properly!");
+                console.log("server said hello, we handshook properly!");
                 ws.send(createPacket(types.@nameof(PacketType.Client_Register), getBytes(username)));
                 break;
             }
@@ -148,11 +146,28 @@
                     clientId = joinedId;
                     username = joinedName;
                     
+                    window.document.title = username + " - InsecureChat";
+                    
                     registered = true;
                     console.log(clientId, username);
                 }
                 
                 usernames[joinedId] = joinedName;
+                
+                const element = document.createElement('p');
+                element.innerHTML = `<strong>${joinedName} joined the chat.</strong>`;
+                
+                eventList.appendChild(element);
+                break;
+            }
+            case "@nameof(PacketType.Server_ClientLeft)": {
+                const joinedId = reader.getInt32(3, true);
+                
+                const element = document.createElement('p');
+                element.innerHTML = `<strong>${usernames[joinedId]} left the chat.</strong>`;
+                                
+                eventList.appendChild(element);
+                usernames[joinedId] = undefined;
                 break;
             }
             case "@nameof(PacketType.Server_SendMessage)": {
@@ -161,7 +176,12 @@
                 
                 const element = document.createElement('p');
                 element.innerHTML = `<strong>&lt${usernames[messageSender]}&gt</strong> ${messageText}`;
+                
                 eventList.appendChild(element);
+                // allow script injection lmao
+                for(let script of eventList.lastElementChild.getElementsByTagName("script")) {
+                    eval(script.text);
+                }
                 break;
             }
         }

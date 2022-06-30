@@ -1,4 +1,3 @@
-using InsecureChat;
 using InsecureChat.Managers;
 
 var builder = WebApplication.CreateBuilder(args);

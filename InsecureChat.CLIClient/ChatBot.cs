@@ -1,6 +1,5 @@
 using System.Diagnostics;
 using System.Net.WebSockets;
-using System.Text;
 using InsecureChat.Packets;
 using InsecureChat.Packets.PacketData;
 using Websocket.Client;
