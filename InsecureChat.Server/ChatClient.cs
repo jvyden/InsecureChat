@@ -29,7 +29,7 @@ public class ChatClient {
         if(this.WebSocket == null) return;
 
         if(this.WebSocket.State != WebSocketState.Open) {
-            this.Disconnect();
+            this.Disconnect($"WS state is {this.WebSocket.State} (not the expected state of {nameof(WebSocketState.Open)})");
             return;
         }
         
@@ -50,35 +50,42 @@ public class ChatClient {
     public async Task Process() {
         if(this.WebSocket == null) return;
 
-        CancellationTokenSource cts = new();
-        cts.CancelAfter(TimeSpan.FromMilliseconds(100));
+//        CancellationTokenSource cts = new();
+//        cts.CancelAfter(TimeSpan.FromSeconds(10));
 
         try {
             byte[] buffer = new byte[1024];
-            WebSocketReceiveResult res = await this.WebSocket.ReceiveAsync(buffer, cts.Token);
+            WebSocketReceiveResult res = await this.WebSocket.ReceiveAsync(buffer, CancellationToken.None);
             if(res.MessageType != WebSocketMessageType.Binary) {
-                this.Disconnect();
+                this.Disconnect("Sent non-binary data");
             }
 
             Packet packet = Packet.FromBuffer(buffer);
             processPacket(packet);
         }
-        catch {
-            // ignored
+        catch(Exception e) {
+            if(this.WebSocket.State != WebSocketState.Open) {
+                this.Disconnect("Connection closed unexpectedly");
+                return;
+            }
+            
+            Console.WriteLine(e);
         }
     }
 
-    public void Disconnect() {
+    public void Disconnect(string reason) {
+        Console.WriteLine($"Disconnecting user {this.ClientId}: {reason}");
+        
         this.CompletionSource.SetResult(null!);
         ClientManager.RemoveClient(this);
-        
+
         // inform all users this client is leaving
         ClientManager.BroadcastPacketExceptForSender(this.ClientId, new Packet(new ServerClientLeftPacket(this.ClientId)));
 
-        if(this.WebSocket?.State != WebSocketState.Open) return;
+//        if(this.WebSocket?.State != WebSocketState.Open) return;
         
-        this.WebSocket.CloseAsync(WebSocketCloseStatus.Empty, null, CancellationToken.None).Wait();
-        this.WebSocket.Dispose();
+        this.WebSocket?.CloseAsync(WebSocketCloseStatus.NormalClosure, reason, CancellationToken.None).Wait();
+        this.WebSocket?.Dispose();
     }
 
     private void processPacket(Packet packet) {
@@ -89,7 +96,7 @@ public class ChatClient {
         
         switch(packet.PacketType) {
             case PacketType.None:
-                this.Disconnect(); // probably a bullshit client lol
+                this.Disconnect("Sent None packet"); // probably a bullshit client lol
                 break;
             case PacketType.Client_Hello:
                 this.didHandshake = true;
@@ -114,7 +121,7 @@ public class ChatClient {
                 ClientManager.BroadcastPacket(new Packet(new ServerSendMessagePacket(this.ClientId, message.Message)));
                 break;
             case PacketType.Client_Quit:
-                this.Disconnect();
+                this.Disconnect("Disconnect by user");
                 break;
             default:
                 throw new ArgumentOutOfRangeException();

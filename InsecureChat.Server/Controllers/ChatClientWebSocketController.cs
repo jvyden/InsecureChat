@@ -17,6 +17,7 @@ public class ChatClientWebSocketController : ControllerBase {
             client.SendPacket(new Packet(PacketType.Server_Hello));
 
             await socketClosed.Task;
+            Console.WriteLine("Done with client " + client.ClientId);
         }
         else {
             HttpContext.Response.StatusCode = StatusCodes.Status400BadRequest;

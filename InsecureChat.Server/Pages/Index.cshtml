@@ -43,6 +43,16 @@
         }
     });
     
+    ws.onerror = (e) => {
+        console.error(e)
+    }
+    
+    ws.onclose = (e) => {
+        console.error(`disconnected: "${e.reason}" (${e.code})`);
+    }
+    
+    const usernames = [];
+    
     const types = {}
     
     // JavaScript has forced my hand. I've finally lost it.
@@ -126,6 +136,8 @@
                     
                     registered = true;
                     console.log(clientId, username);
+                } else {
+                    usernames[joinedId] = joinedName;
                 }
                 break;
             }
@@ -134,7 +146,7 @@
                 const messageText = reader.getString(7);
                 
                 const element = document.createElement('p');
-                element.innerText = `<${messageSender}> ${messageText}`;
+                element.innerText = `<${usernames[messageSender]}> ${messageText}`;
                 document.body.appendChild(element);
                 break;
             }

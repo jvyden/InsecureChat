@@ -10,6 +10,10 @@ WebApplication app = builder.Build();
 
 Console.WriteLine($"Spawning {Environment.ProcessorCount} worker threads");
 
+AppDomain.CurrentDomain.UnhandledException += (sender, eventArgs) => {
+    Console.WriteLine(eventArgs.ExceptionObject);
+};
+
 for(int i = 0; i < Environment.ProcessorCount; i++) {
     WorkerManager.SpawnWorker(i);
 }

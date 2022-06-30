@@ -32,8 +32,8 @@ public static class WorkerManager {
         try {
             await chatClient.Process();
         }
-        catch(WebSocketException) {
-            chatClient.Disconnect();
+        catch(WebSocketException e) {
+            chatClient.Disconnect($"WebSocketException thrown:\n{e}");
         }
         catch(Exception e) {
             Console.WriteLine($"Error while processing {chatClient.ClientId}:\n{e}");
