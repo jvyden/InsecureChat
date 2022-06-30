@@ -15,12 +15,16 @@
     <title>InsecureChat</title>
 </head>
 <body>
-<div>
+<div id="events">
 
 </div>
+<input type="text" id="textBox"/>
 </body>
 
 <script>
+    const textBox = document.getElementById("textBox");
+    textBox.value = "";
+
     let username = null;
     do {
         username = prompt("Please enter a username");
@@ -28,6 +32,8 @@
     
     let registered = false;
     let clientId = -1;
+    
+    const eventList = document.getElementById("events");
 
     const ws = new WebSocket("ws://localhost:5056/ws");
     ws.binaryType = "arraybuffer";
@@ -50,9 +56,17 @@
     ws.onclose = (e) => {
         console.error(`disconnected: "${e.reason}" (${e.code})`);
     }
+
+    textBox.addEventListener("keydown", event => {
+        if (event.keyCode === 13) {
+            event.preventDefault();
+            
+            ws.send(createPacket(types.@nameof(PacketType.Client_SendMessage), getBytes(textBox.value)));
+            textBox.value = "";
+        }    
+    });
     
     const usernames = [];
-    
     const types = {}
     
     // JavaScript has forced my hand. I've finally lost it.
@@ -136,9 +150,9 @@
                     
                     registered = true;
                     console.log(clientId, username);
-                } else {
-                    usernames[joinedId] = joinedName;
                 }
+                
+                usernames[joinedId] = joinedName;
                 break;
             }
             case "@nameof(PacketType.Server_SendMessage)": {
@@ -146,8 +160,8 @@
                 const messageText = reader.getString(7);
                 
                 const element = document.createElement('p');
-                element.innerText = `<${usernames[messageSender]}> ${messageText}`;
-                document.body.appendChild(element);
+                element.innerHTML = `<strong>&lt${usernames[messageSender]}&gt</strong> ${messageText}`;
+                eventList.appendChild(element);
                 break;
             }
         }

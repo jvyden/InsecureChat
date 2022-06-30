@@ -50,9 +50,6 @@ public class ChatClient {
     public async Task Process() {
         if(this.WebSocket == null) return;
 
-//        CancellationTokenSource cts = new();
-//        cts.CancelAfter(TimeSpan.FromSeconds(10));
-
         try {
             byte[] buffer = new byte[1024];
             WebSocketReceiveResult res = await this.WebSocket.ReceiveAsync(buffer, CancellationToken.None);
