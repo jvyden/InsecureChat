@@ -69,6 +69,9 @@ public class ChatClient {
     public void Disconnect() {
         this.CompletionSource.SetResult(null!);
         ClientManager.RemoveClient(this);
+        
+        // inform all users this client is leaving
+        ClientManager.BroadcastPacketExceptForSender(this.ClientId, new Packet(new ServerClientLeftPacket(this.ClientId)));
 
         if(this.WebSocket?.State != WebSocketState.Open) return;
         

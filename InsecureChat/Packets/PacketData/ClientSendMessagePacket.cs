@@ -8,13 +8,13 @@ public class ClientSendMessagePacket : IPacketData {
     }
 
     public ClientSendMessagePacket(byte[] data) {
-        this.Message = Encoding.ASCII.GetString(data);
+        this.Message = Encoding.UTF8.GetString(data);
     }
     
     public string Message { get; init; }
     
     public PacketType Type => PacketType.Client_SendMessage;
     public byte[] GetBytes() {
-        return Encoding.ASCII.GetBytes(this.Message);
+        return Encoding.UTF8.GetBytes(this.Message);
     }
 }
