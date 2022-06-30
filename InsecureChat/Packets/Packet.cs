@@ -17,6 +17,12 @@ public struct Packet {
         this.Length = (ushort)data.Length;
     }
 
+    public Packet(IPacketData packetData) {
+        this.PacketType = packetData.Type;
+        this.Data = packetData.GetBytes();
+        this.Length = (ushort)this.Data.Length;
+    }
+
     public Packet(PacketType type, byte[] data, ushort length) {
         this.PacketType = type;
         this.Data = data;

@@ -11,7 +11,7 @@ WebApplication app = builder.Build();
 Console.WriteLine($"Spawning {Environment.ProcessorCount} worker threads");
 
 for(int i = 0; i < Environment.ProcessorCount; i++) {
-    WorkerManager.SpawnWorker();
+    WorkerManager.SpawnWorker(i);
 }
 
 app.UseStaticFiles();
