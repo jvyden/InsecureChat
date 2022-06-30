@@ -21,14 +21,27 @@
 </body>
 
 <script>
+    let username = null;
+    do {
+        username = prompt("Please enter a username");
+    } while(username === null);
+    
+    let registered = false;
+    let clientId = -1;
+
     const ws = new WebSocket("ws://localhost:5056/ws");
+    ws.binaryType = "arraybuffer";
+    
     ws.onopen = () => {
-        ws.send(createPacket(types.Client_Hello));
+        ws.send(createPacket(types.@nameof(PacketType.Client_Hello)));
     }
     
-    ws.onmessage = () => {
-        
-    }
+    ws.addEventListener("message", function (event) {
+        if(event.data instanceof ArrayBuffer) {
+            const reader = new DataView(event.data);
+            processPacket(reader);
+        }
+    });
     
     const types = {}
     
@@ -68,6 +81,64 @@
         }
         
         return byteArray;
+    }
+    
+    function getBytes(string) {
+        return Uint8Array.from(Array.from(string).map(letter => letter.charCodeAt(0)));
+    }
+    
+    DataView.prototype.getString = function(index) {
+        const length = this.getUint8(index);
+        let str = "";
+        
+        for(let i = 0; i < length; i++) {
+            const char = this.getUint8(index + i + 1);
+            str += String.fromCharCode(char);
+        }
+        
+        return str;
+    }
+    
+    /**
+    * @@param {DataView} reader
+    */
+    function processPacket(reader) {
+        const typeIndex = reader.getUint8(0);
+        const length = reader.getUint16(1);
+        
+        const type = Object.keys(types)[typeIndex];
+        
+        console.log("Got packet " + type);
+        
+        switch (type) {
+            case "@nameof(PacketType.Server_Hello)": {
+                console.log("server said hello, we handshaked properly!");
+                ws.send(createPacket(types.@nameof(PacketType.Client_Register), getBytes(username)));
+                break;
+            }
+            case "@nameof(PacketType.Server_ClientJoined)": {
+                const joinedId = reader.getInt32(3, true);
+                const joinedName = reader.getString(7); 
+                
+                if (!registered) {
+                    clientId = joinedId;
+                    username = joinedName;
+                    
+                    registered = true;
+                    console.log(clientId, username);
+                }
+                break;
+            }
+            case "@nameof(PacketType.Server_SendMessage)": {
+                const messageSender = reader.getInt32(3, true);
+                const messageText = reader.getString(7);
+                
+                const element = document.createElement('p');
+                element.innerText = `<${messageSender}> ${messageText}`;
+                document.body.appendChild(element);
+                break;
+            }
+        }
     }
 </script>
 
