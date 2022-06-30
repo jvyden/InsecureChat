@@ -53,6 +53,10 @@
     
     ws.onclose = (e) => {
         console.error(`disconnected: "${e.reason}" (${e.code})`);
+        const element = document.createElement('p');
+        element.innerHTML = `<strong style="color: red">You Have Been Disconnected Lmao</strong>`;
+
+        eventList.appendChild(element);
     }
 
     textBox.addEventListener("keydown", event => {
