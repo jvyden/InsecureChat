@@ -1,6 +1,7 @@
 @page "/"
 @using InsecureChat
 @using InsecureChat.Managers
+@using InsecureChat.Packets
 @model InsecureChat.Pages.Index
 
 @{
@@ -9,28 +10,64 @@
 
 <!DOCTYPE html>
 
-<html>
+<html lang="en">
 <head>
     <title>InsecureChat</title>
 </head>
 <body>
 <div>
-    @foreach(ChatClient client in ClientManager.Clients) {
-        <b>@client.Username (@client.ClientId)</b>
-        <br>
-    }
+
 </div>
 </body>
 
 <script>
     const ws = new WebSocket("ws://localhost:5056/ws");
     ws.onopen = () => {
-        const byteArray = new Uint8Array(3);
-        byteArray[0] = 0x01;
-        byteArray[1] = 0x00;
-        byteArray[2] = 0x00;
+        ws.send(createPacket(types.Client_Hello));
+    }
+    
+    ws.onmessage = () => {
         
-        ws.send(byteArray);
+    }
+    
+    const types = {}
+    
+    // JavaScript has forced my hand. I've finally lost it.
+    @{
+        string typeDeclaration = "";
+        @foreach(PacketType type in Enum.GetValues<PacketType>()) {
+            // generates JS: `types.Client_Hello = 1;\n`
+            typeDeclaration += $"types.{type.ToString()} = {(int)type};\n";
+        }
+    }
+    @Html.Raw(typeDeclaration)
+    
+    console.log(types);
+    
+    /**
+    * @@param {!number} type
+    * @@param {?Uint8Array} data
+    */
+    function createPacket(type, data) {
+        if (data === undefined || data === null) {
+            data = new Uint8Array(0);
+        }
+        
+        const byteArray = new Uint8Array(3 + data.length)
+        const length = data.length;
+       
+        byteArray[0] = type;
+        
+        byteArray[1] = length & 0xFF;
+        byteArray[2] = (length>>8) & 0xFF;
+        
+        let i = 0;
+        for(let byte of data) {
+            byteArray[3 + i] = byte;
+            i++;
+        }
+        
+        return byteArray;
     }
 </script>
 

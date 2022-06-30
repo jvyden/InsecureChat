@@ -56,7 +56,9 @@ public class ChatClient {
         try {
             byte[] buffer = new byte[1024];
             WebSocketReceiveResult res = await this.WebSocket.ReceiveAsync(buffer, cts.Token);
-            Debug.Assert(res.MessageType == WebSocketMessageType.Binary);
+            if(res.MessageType != WebSocketMessageType.Binary) {
+                this.Disconnect();
+            }
 
             Packet packet = Packet.FromBuffer(buffer);
             processPacket(packet);
